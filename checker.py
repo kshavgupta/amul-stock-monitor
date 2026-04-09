@@ -47,8 +47,19 @@ def check_stock() -> list[dict]:
                     if pincode_input:
                         logger.info("Pincode popup detected, entering pincode...")
                         pincode_input.fill("560103")
-                        page.keyboard.press("Enter")
-                        page.wait_for_timeout(3000)
+                        page.wait_for_timeout(1000)
+                        # Try clicking a submit/check button first, fallback to Enter
+                        try:
+                            submit_btn = page.query_selector(
+                                "button[type='submit'], button:has-text('Check'), button:has-text('Submit'), button:has-text('Proceed'), .pincode-submit, .btn-pincode"
+                            )
+                            if submit_btn:
+                                submit_btn.click()
+                            else:
+                                page.keyboard.press("Enter")
+                        except Exception:
+                            page.keyboard.press("Enter")
+                        page.wait_for_timeout(5000)
                 except Exception:
                     pass  # No pincode popup, continue normally
 
