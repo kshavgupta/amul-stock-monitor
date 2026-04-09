@@ -36,10 +36,24 @@ def check_stock() -> list[dict]:
             page = context.new_page()
             try:
                 logger.info(f"Checking: {product['name']}")
-                page.goto(product["url"], wait_until="networkidle", timeout=120000)
+                page.goto(product["url"], wait_until="domcontentloaded", timeout=120000)
+
+                # Handle pincode popup if it appears
+                try:
+                    pincode_input = page.wait_for_selector(
+                        "input[placeholder*='pincode'], input[placeholder*='Pincode'], input[name='pincode']",
+                        timeout=10000
+                    )
+                    if pincode_input:
+                        logger.info("Pincode popup detected, entering pincode...")
+                        pincode_input.fill("560103")
+                        page.keyboard.press("Enter")
+                        page.wait_for_timeout(3000)
+                except Exception:
+                    pass  # No pincode popup, continue normally
 
                 # Wait for Vue.js to render the product section
-                page.wait_for_selector(".product-detail, .product-grid-item", timeout=30000)
+                page.wait_for_selector(".product-detail, .product-grid-item", timeout=60000)
 
                 # Stock is available if "Add to Cart" button exists and is NOT disabled
                 add_to_cart = page.query_selector("a[title='Add to Cart']")
