@@ -5,12 +5,12 @@ logger = logging.getLogger(__name__)
 
 PRODUCTS = [
     {
-        "name": "Amul High Protein Plain Lassi 200ml (Pack of 30)",
-        "url": "https://shop.amul.com/en/product/amul-high-protein-plain-lassi-200-ml-or-pack-of-30",
-    },
-    {
         "name": "Amul High Protein Rose Lassi 200ml (Pack of 30)",
         "url": "https://shop.amul.com/en/product/amul-high-protein-rose-lassi-200-ml-or-pack-of-30",
+    },
+    {
+        "name": "Amul High Protein Plain Lassi 200ml (Pack of 30)",
+        "url": "https://shop.amul.com/en/product/amul-high-protein-plain-lassi-200-ml-or-pack-of-30",
     },
 ]
 
