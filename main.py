@@ -1,6 +1,7 @@
 import logging
-import os
-from apscheduler.schedulers.blocking import BlockingScheduler
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import pytz
 
@@ -27,11 +28,21 @@ def run_check():
         logger.info("No products in stock at this time.")
 
 
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+    def log_message(self, format, *args):
+        pass  # suppress HTTP access logs
+
+
 if __name__ == "__main__":
-    # Run once immediately on startup (useful to verify everything works on deploy)
+    # Run once immediately on startup
     run_check()
 
-    scheduler = BlockingScheduler(timezone=IST)
+    scheduler = BackgroundScheduler(timezone=IST)
 
     # 8:00 AM IST
     scheduler.add_job(run_check, CronTrigger(hour=8, minute=0, timezone=IST))
@@ -40,5 +51,11 @@ if __name__ == "__main__":
     # 8:00 PM IST
     scheduler.add_job(run_check, CronTrigger(hour=20, minute=0, timezone=IST))
 
-    logger.info("Scheduler started. Checks run at 8:00 AM, 2:00 PM, and 8:00 PM IST.")
     scheduler.start()
+    logger.info("Scheduler started. Checks run at 8:00 AM, 2:00 PM, and 8:00 PM IST.")
+
+    # Start HTTP server to satisfy Render's port binding requirement
+    port = int(__import__("os").environ.get("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    logger.info(f"Health server listening on port {port}")
+    server.serve_forever()

@@ -36,7 +36,7 @@ def check_stock() -> list[dict]:
             page = context.new_page()
             try:
                 logger.info(f"Checking: {product['name']}")
-                page.goto(product["url"], wait_until="networkidle", timeout=60000)
+                page.goto(product["url"], wait_until="networkidle", timeout=120000)
 
                 # Wait for Vue.js to render the product section
                 page.wait_for_selector(".product-detail, .product-grid-item", timeout=30000)
