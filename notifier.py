@@ -51,7 +51,9 @@ def send_stock_alert(in_stock_products: list[dict]):
     msg.attach(MIMEText(html_body, "html"))
 
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.ehlo()
+            server.starttls()
             server.login(sender, password)
             server.sendmail(sender, receiver, msg.as_string())
         logger.info(f"Alert email sent to {receiver}")
